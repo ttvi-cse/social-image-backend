@@ -1,0 +1,16 @@
+/bootstrap/compiled.php
+/vendor
+composer.phar
+composer.lock
+.env.*.php
+.env.php
+.DS_Store
+Thumbs.db
+/.idea/*.xml
+/.idea/copyright/*.xml
+/.idea/dataSources/*.xml
+/.idea/Project-SocialImage-Server-4.2.iml
+/CONTRIBUTING.md
+/app/commands/.gitkeep
+/app/config/packages/.gitkeep
+/app/controllers/*.gitkeep
