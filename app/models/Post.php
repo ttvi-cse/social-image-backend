@@ -96,4 +96,8 @@ class Post extends Elegant implements StaplerableInterface
     public function comments() {
         return $this->hasMany('Comment', 'target_id', 'id');
     }
+
+    public function users() {
+        return $this->belongsToMany('User');
+    }
 }

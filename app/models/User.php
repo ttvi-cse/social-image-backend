@@ -114,4 +114,12 @@ class User extends Elegant implements UserInterface, RemindableInterface, Staple
         // Register observer
         self::observe(new UserObserver);
     }
+
+    /**
+     * Relationships
+     */
+
+    public function posts() {
+        return $this->hasMany('Post', 'created_by', 'id');
+    }
 }

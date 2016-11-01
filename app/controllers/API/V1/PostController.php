@@ -33,14 +33,14 @@ class PostController extends APIController
     {
 
         $user = \API::user();
-        $post = \Post::all();
+        if ($user != null) {
+            $post = $user->post();
+        }
 
         \Log::info($post);
-//
-        $this->res['data'] = $post->toArray();
-//
-//        \Log::info('index');
 
+        $this->res['data'] = $post->toArray();
+        
         return \Response::api($this->res);
     }
 
