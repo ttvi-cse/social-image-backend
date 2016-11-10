@@ -54,6 +54,7 @@ class Post extends Elegant implements StaplerableInterface
      */
     public function getThumbAttribute() {
         $basename = Config::get("app.url");
+        \Log::info($this->image->url());
         return $basename . $this->image->url('large');
     }
 
@@ -98,6 +99,27 @@ class Post extends Elegant implements StaplerableInterface
     }
 
     public function users() {
-        return $this->belongsToMany('User');
+        return $this->belongsTo('User');
     }
+
+    /**
+     * Scopes
+     */
+    public function scopeSort($query) {
+        $input = [
+            'sort' => Input::get('sort', 'title'),
+            'order' => Input::get('order', 'asc'),
+        ];
+
+        $query->orderBy($this->absColumn($input['sort']), $input['order']);
+
+        return $query;
+    }
+
+    // Increase view count
+    public function increaseViewCount() {
+        $this->view_count++;
+        $this->save();
+    }
+
 }

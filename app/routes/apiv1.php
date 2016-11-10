@@ -28,35 +28,8 @@ Route::api(['version' => 'v1', 'before' => 'api.perm'], function() {
     /**
      * Posts
      */
-//    Route::get('/posts', [
-//        'uses' => 'API\V1\PostController@index',
-//        'as' => 'api.post.index'
-//    ]);
-//    Route::post('/posts', [
-//        'uses' => 'API\V1\PostController@create',
-//        'as' => 'api.post.create'
-//    ]);
-//    Route::get('/posts/{post_id}', [
-//        'uses' => 'API\V1\PostController@show',
-//        'as' => 'api.post.detail'
-//    ]);
-//    Route::post('/posts/{post_id}/rate', [
-//        'uses' => 'API\V1\PostController@rate',
-//        'as' => 'api.post.rate'
-//    ]);
-//    Route::post('/posts/{post_id}/like', [
-//        'uses' => 'API\V1\PostController@like',
-//        'as' => 'api.post.like'
-//    ]);
-//    Route::get('/posts/{post_id}/comments', [
-//        'uses' => 'API\V1\CommentController@index',
-//        'as' => 'api.comment.index'
-//    ]);
-//    Route::post('/posts/{post_id}/comments', [
-//        'uses' => 'API\V1\CommentController@create',
-//        'as' => 'api.comment.create'
-//    ]);
+
     Route::resource('posts', 'API\V1\PostController', [
-        'only' => ['index', 'show']
+        'only' => ['index', 'show', 'store', 'update', 'destroy' ]
     ]);
 });

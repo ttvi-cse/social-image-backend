@@ -21,7 +21,7 @@ class PostController extends APIController
 
     public function __construct()
     {
-        $this->beforeFilter('article.permView', array('except' => 'index'));
+//        $this->beforeFilter('article.permView', array('except' => 'index'));
     }
 
     /**
@@ -33,14 +33,22 @@ class PostController extends APIController
     {
 
         $user = \API::user();
+
+        \Log::info($user);
+
+        $posts = new Post();
+
         if ($user != null) {
-            $post = $user->post();
+            $userId = $user->id;
+            $posts = Post::where('created_by', $userId)->get();
         }
 
-        \Log::info($post);
+//        $posts = $posts
+//            ->sort()
+//            ->paginate(input_perpage());
 
-        $this->res['data'] = $post->toArray();
-        
+        $this->res['data'] = $posts->toArray();
+
         return \Response::api($this->res);
     }
 
@@ -50,18 +58,46 @@ class PostController extends APIController
      * @param  int  $id
      * @return Response
      */
-    public function show($article)
+    public function show($post)
     {
-        if($article->status_id != 1){
-            \App::abort(404);
+        $post = Post::find($post);
+
+        $post->increaseViewCount();
+
+        $this->res['data'] = $post;
+
+        return \Response::api($this->res);
+    }
+
+    public function store() {
+        $post = new Post();
+
+        $rules = Post::$rules;
+
+        $validator = \Validator::make(\Input::all(), $rules);
+
+        if ($validator->fails()) {
+            $this->res['errors'] = $post->errors();
         }
 
-        $article->load('created_by_user');
-        $article->loadAttribute('has_quiz');
-        $article->loadAttribute('has_poll');
-        $this->res['data'] = $article->toArray();
+        $post->fill(\Input::except('file'));
+        $post->image = \Input::file('file');
 
-        $article->increaseViewCount();
+        $destinationPath = public_path() . '/uploads/';
+        $filename =  \Input::file('file')->getClientOriginalName();
+        \Input::file('file')->move($destinationPath, $filename);
+
+        $post->image = $destinationPath . $filename;
+
+        $user = \Api::user();
+        $post->created_by = $user->id;
+        $post->updated_by = $user->id;
+
+        if ($post->save()) {
+            $this->res['data'] = $post->toArray();
+        } else {
+            $this->res['errors'] = $post->errors();
+        }
 
         return \Response::api($this->res);
     }

@@ -21,23 +21,12 @@ class PostObserver
 
     public function created($model)
     {
-        // Attach created action
-//        $targetTypeId = $model->type_id;
-//        switch ($targetTypeId) {
-//            case 4:
-//                $targetTypeId = 10;
-//                break;
-//
-//            case 5:
-//                $targetTypeId = 11;
-//                break;
-//        }
-//
+//         Attach created action
+
 //        $model->created_by_user->attachAction(
 //            10, // Created
 //            $model->title,
-//            $model->id,
-//            $targetTypeId
+//            $model->id
 //        );
     }
 }

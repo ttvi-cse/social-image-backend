@@ -12,12 +12,23 @@ namespace API\V1;
 use APIController;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use User;
 
 class UserController extends APIController
 {
     public function register()
     {
+        $user = new User();
 
+        $user->fill(\Input::all());
+
+        if ($user->save()) {
+            $this->res['data'] = $user->toArray();
+        } else {
+            $this->res['errors'] = $user->errors();
+        }
+
+        return \Response::api($this->res);
     }
 
     public function login()
@@ -39,9 +50,6 @@ class UserController extends APIController
         $resUser['token'] = $token;
         $resUser['expiry_in'] = \Config::get('jwt::ttl');
 
-        $reflector = new \ReflectionClass('\Response');
-        echo $reflector->getFileName();
-
         return \Response::api(['data' => $resUser]);
     }
 
@@ -55,7 +63,7 @@ class UserController extends APIController
         ));
     }
 
-    public function pprofile()
+    public function profile()
     {
 
     }

@@ -102,21 +102,21 @@ Route::filter('api.perm', function($route, $request){
 	$user = API::user();
 
 	if($user){
-		if($user->status_id != 1) {
-			return Response::make([
-				'message' => 'Your account is inactive!'
-			], 401);
-		}
+//		if($user->status_id != 1) {
+//			return Response::make([
+//				'message' => 'Your account is inactive!'
+//			], 401);
+//		}
 
-		$perms = Config::get('permission.api', []);
-		$routeName = $route->getName();
-		$allowedUserTypes = $perms[$routeName];
-
-		if(!in_array($user->type_id, $allowedUserTypes)){
-			return Response::make([
-				'message' => 'Permission dennied'
-			], 404);
-		}
+//		$perms = Config::get('permission.api', []);
+//		$routeName = $route->getName();
+//		$allowedUserTypes = $perms[$routeName];
+//
+//		if(!in_array($user->type_id, $allowedUserTypes)){
+//			return Response::make([
+//				'message' => 'Permission dennied'
+//			], 404);
+//		}
 	}
 });
 
