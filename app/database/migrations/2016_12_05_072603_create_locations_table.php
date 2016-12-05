@@ -12,7 +12,18 @@ class CreateLocationsTable extends Migration {
 	 */
 	public function up()
 	{
-		//
+		Schema::create('locations', function(Blueprint $table) {
+			$table->increments('id');
+			$table->string('place_id');
+			$table->string('name');
+			$table->string('address');
+			$table->string('phone');		
+			$table->softDeletes();
+            $table->timestamps();
+            $table->integer('created_by')->nullable();
+            $table->integer('updated_by')->nullable();
+            $table->integer('deleted_by')->nullable();
+		});
 	}
 
 	/**
@@ -22,7 +33,7 @@ class CreateLocationsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schemna::drop('locations');
 	}
 
 }

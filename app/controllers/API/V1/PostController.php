@@ -14,7 +14,7 @@ use Comment;
 use Like;
 use Post;
 use Rate;
-use Vendor;
+use Location;
 
 class PostController extends APIController
 {
@@ -148,35 +148,36 @@ class PostController extends APIController
     }
 
 
-    public function vendors() {
+    public function locations() {
         $method = \Request::method();
 
         switch ($method) {
             case 'GET':
-                $vendors = new Vendor();
+                $location = new Location();
 
-                $vendors = Vendor::all();
+                $locations = Location::all();
 
-                $this->res['data'] = $vendors->toArray();
+                $this->res['data'] = $locations->toArray();
 
                 break;
             case 'POST':
-                $vendor = new Vendor();
+                $location = Location::firstOrNew(\Input::all());
 
-                $rules = Vendor::$rules;
+                $rules = Location::$rules;
 
                 $validator = \Validator::make(\Input::all(), $rules);
 
                 if ($validator->fails()) {
-                    $this->res['errors'] = $vendor->errors();
+                    $this->res['errors'] = $location->errors();
                 }
 
-                $vendor->fill(\Input::all());
 
-                if ($vendor->save()) {
-                    $this->res['data'] = $vendor->toArray();
+                $location->fill(\Input::all());
+
+                if ($location->save()) {
+                    $this->res['data'] = $location->toArray();
                 } else {
-                    $this->res['errors'] = $vendor->errors();
+                    $this->res['errors'] = $location->errors();
                 }
 
                 break;

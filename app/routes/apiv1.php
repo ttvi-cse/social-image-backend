@@ -56,12 +56,12 @@ Route::api(['version' => 'v1', 'before' => 'api.perm'], function() {
         'only' => ['index', 'show', 'store', 'update', 'destroy' ]
     ]);
 
-    Route::get('post/all', [
+    Route::get('posts/location/all', [
         'uses' => 'API\V1\PostController@all',
         'as'   => 'api.posts.all'
     ]);
 
-    Route::get('post/location/{location}', [
+    Route::get('posts/location/{location}', [
         'uses' => 'API\V1\PostController@location',
         'as'   => 'api.posts.location'
     ]);
@@ -83,23 +83,16 @@ Route::api(['version' => 'v1', 'before' => 'api.perm'], function() {
         'protected' => true
     ]);
 
-    Route::post('vendors', [
-        'uses' => 'API\V1\PostController@vendors',
-        'as' => 'api.posts.vendors.add',
+    Route::post('locations', [
+        'uses' => 'API\V1\PostController@locations',
+        'as' => 'api.posts.locations.add',
         'protected' => true
     ]);
 
-    Route::get('vendors', [
-        'uses' => 'API\V1\PostController@vendors',
-        'as' => 'api.posts.vendors.index',
+    Route::get('locations', [
+        'uses' => 'API\V1\PostController@locations',
+        'as' => 'api.posts.locations.index',
         'protected' => true
     ]);
-
-    Route::get('vendors/{vendor}', [
-        'uses' => 'API\V1\PostController@vendors',
-        'as' => 'api.posts.vendors.show',
-        'protected' => true
-    ]);
-
 
 });
