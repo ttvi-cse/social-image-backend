@@ -10,12 +10,12 @@ class Post extends Elegant implements StaplerableInterface
     /**
      * Fillable
      */
-    protected $fillable = ['image', 'content'];
+    protected $fillable = ['image', 'content', 'location'];
 
     /**
      * Appends attributes
      */
-    protected $appends = ['thumb', 'is_rated'];
+    protected $appends = ['thumb', 'is_liked', 'is_rated'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -25,7 +25,8 @@ class Post extends Elegant implements StaplerableInterface
     protected $hidden = ['image_file_name', 'image_file_size', 'image_content_type', 'image_updated_at','updated_at', 'deleted_at', 'created_by', 'updated_by', 'deleted_by'];
 
     public static $rules = array(
-        'content' => 'required',
+//        'file' => 'required',
+        'content' => 'required'
     );
 
     public function __construct(array $attributes = array()) {
@@ -41,8 +42,8 @@ class Post extends Elegant implements StaplerableInterface
     }
 
     public static function boot() {
-//        parent::boot();
-//        static::bootStapler();
+        parent::boot();
+        static::bootStapler();
 
         // Register observer
         self::observe(new PostObserver);
@@ -56,6 +57,15 @@ class Post extends Elegant implements StaplerableInterface
         $basename = Config::get("app.url");
         \Log::info($this->image->url());
         return $basename . $this->image->url('large');
+    }
+
+    public function getIsLikedAttribute() {
+        $user = API::user();
+        if (!$user) {
+            return false;
+        }
+
+        return $this->likes()->where('created_by', $user->id)->count() > 0;
     }
 
     public function getIsRatedAttribute() {
@@ -76,11 +86,11 @@ class Post extends Elegant implements StaplerableInterface
         return $name;
     }
 
-    public function getCreatedDateAttribute() {
-        $date = date_create($this->created_at);
-
-        return date_format($date, 'Y-m-d');
-    }
+//    public function getCreatedDateAttribute() {
+//        $date = date_create($this->created_at);
+//
+//        return date_format($date, 'Y-m-d');
+//    }
 
     /**
      * Mutators
@@ -90,12 +100,20 @@ class Post extends Elegant implements StaplerableInterface
      * Relationships
      */
 
+    public function likes() {
+        return $this->hasMany('PostLike');
+    }
+
     public function rates() {
         return $this->hasMany('PostRate');
     }
 
     public function comments() {
         return $this->hasMany('Comment', 'target_id', 'id');
+    }
+
+    public function vendors() {
+        return $this->belongsTo('Vendor');
     }
 
     public function users() {
@@ -120,6 +138,34 @@ class Post extends Elegant implements StaplerableInterface
     public function increaseViewCount() {
         $this->view_count++;
         $this->save();
+    }
+
+    /**
+     * Update rating average
+     */
+    public function updateRatingAverage($newRate) {
+        $n = $this->rating_count;
+        $x = $this->rating_average;
+        $y = $newRate;
+        $r = (($n * $x) + $y) / ($n + 1);
+
+        $this->rating_average = ceil($r * 2) / 2;
+
+        return $this;
+    }
+
+    /**
+     * Override toArray
+     */
+    public function toArray()
+    {
+        $this->load('created_by_user');
+
+        $data = parent::toArray();
+        if(!isset($data['parent_id'])){
+            $data['parent_id'] = $this->parent_id;
+        }
+        return $data;
     }
 
 }

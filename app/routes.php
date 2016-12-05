@@ -10,7 +10,7 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
-//require app_path() . '/routes/model_binding.php';
+require app_path() . '/routes/model_binding.php';
 
 
 Route::get('/', function()

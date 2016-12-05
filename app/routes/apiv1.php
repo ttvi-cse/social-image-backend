@@ -20,9 +20,32 @@ Route::api(['version' => 'v1', 'before' => 'api.perm'], function() {
         'uses' => 'API\V1\UserController@logout',
         'as' => 'api.user.logout'
     ]);
-    Route::post('/users/{user_id}/profile', [
-        'uses' => 'API\V1\UserController@profile',
-        'as' => 'api.user.profile'
+
+    Route::get('users/{users}/avatar', [
+        'uses' => 'API\V1\UserController@avatar',
+        'as'   => 'api.users.avatar'
+    ]);
+
+    Route::post('users/{users}/avatar', [
+        'uses' => 'API\V1\UserController@avatar',
+        'as'   => 'api.users.avatar.update',
+        'protected' => true
+    ]);
+
+    Route::post('users/actions', [
+        'uses' 		=> 'API\V1\UserController@actions',
+        'as'   		=> 'api.users.actions',
+        'protected' => true
+    ]);
+
+    Route::post('users/{users}', [
+        'uses' 		=> 'API\V1\UserController@update',
+        'as'   		=> 'api.users.update',
+        'protected' => true
+    ]);
+
+    Route::resource('users', 'API\V1\UserController', [
+        'only' => ['index', 'show']
     ]);
 
     /**
@@ -32,4 +55,51 @@ Route::api(['version' => 'v1', 'before' => 'api.perm'], function() {
     Route::resource('posts', 'API\V1\PostController', [
         'only' => ['index', 'show', 'store', 'update', 'destroy' ]
     ]);
+
+    Route::get('post/all', [
+        'uses' => 'API\V1\PostController@all',
+        'as'   => 'api.posts.all'
+    ]);
+
+    Route::get('post/location/{location}', [
+        'uses' => 'API\V1\PostController@location',
+        'as'   => 'api.posts.location'
+    ]);
+
+    Route::get('posts/{posts}/comments', [
+        'uses' => 'API\V1\PostController@comments',
+        'as'   => 'api.posts.comments.index'
+    ]);
+
+    Route::post('posts/{posts}/comments', [
+        'uses' 		=> 'API\V1\PostController@comments',
+        'as'   		=> 'api.posts.comments.update',
+        'protected' => true
+    ]);
+
+    Route::delete('posts/{posts}/comments/{comments}', [
+        'uses' 		=> 'API\V1\PostController@destroy_comment',
+        'as'   		=> 'api.posts.comments.destroy',
+        'protected' => true
+    ]);
+
+    Route::post('vendors', [
+        'uses' => 'API\V1\PostController@vendors',
+        'as' => 'api.posts.vendors.add',
+        'protected' => true
+    ]);
+
+    Route::get('vendors', [
+        'uses' => 'API\V1\PostController@vendors',
+        'as' => 'api.posts.vendors.index',
+        'protected' => true
+    ]);
+
+    Route::get('vendors/{vendor}', [
+        'uses' => 'API\V1\PostController@vendors',
+        'as' => 'api.posts.vendors.show',
+        'protected' => true
+    ]);
+
+
 });

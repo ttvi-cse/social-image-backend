@@ -3,8 +3,8 @@
 /**
  * Created by PhpStorm.
  * User: John
- * Date: 11/1/2016
- * Time: 6:48 PM
+ * Date: 11/10/2016
+ * Time: 9:52 PM
  */
 class PostLikeObserver
 {
@@ -13,5 +13,4 @@ class PostLikeObserver
         $model->post->like_count ++;
         $model->post->save();
     }
-
 }

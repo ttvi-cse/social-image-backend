@@ -3,12 +3,12 @@
 /**
  * Created by PhpStorm.
  * User: John
- * Date: 11/1/2016
- * Time: 8:01 PM
+ * Date: 11/10/2016
+ * Time: 9:50 PM
  */
-class PostLike extends Elegant
+class PostLike extends Elegant 
 {
-    protected $table = 'post_shares';
+    protected $table = 'post_likes';
 
     /**
      * Fillable
@@ -36,7 +36,7 @@ class PostLike extends Elegant
         parent::boot();
 
         // Register observer
-        self::observe(new PostShareObserver);
+        self::observe(new PostLikeObserver());
     }
 
 
@@ -53,7 +53,6 @@ class PostLike extends Elegant
      */
     public function post()
     {
-        return $this->belongsTo('Post', 'post_id', 'id');
+        return $this->belongsTo('post', 'post_id', 'id');
     }
-
 }

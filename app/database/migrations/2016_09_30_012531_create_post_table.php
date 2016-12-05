@@ -28,6 +28,7 @@ class CreatePostTable extends Migration
 
             $table->softDeletes();
             $table->timestamps();
+            $table->integer('location')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->integer('deleted_by')->nullable();

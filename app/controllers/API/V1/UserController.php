@@ -16,6 +16,15 @@ use User;
 
 class UserController extends APIController
 {
+
+    public function show($user)
+    {
+
+        $this->res['data'] = $user;
+
+        return \Response::api($this->res);
+    }
+
     public function register()
     {
         $user = new User();
@@ -53,7 +62,7 @@ class UserController extends APIController
         return \Response::api(['data' => $resUser]);
     }
 
-    public function logout()
+        public function logout()
     {
         Auth::logout();
         return \Response::api(array(
@@ -63,8 +72,92 @@ class UserController extends APIController
         ));
     }
 
-    public function profile()
+    /**
+     * User's avatar
+     */
+    public function avatar($user)
     {
+        $method = \Request::method();
 
+        switch ($method) {
+            case 'GET':
+                $imagePath = $user->avatar->url('small');
+                break;
+            case 'POST':
+                if($user->id != \API::user()->id){
+                    \App::abort('404');
+                }
+
+                if(!\Input::hasFile('avatar')){
+                    $user->addError('avatar', 'Can not get input file');
+
+                    $this->res['errors'] = $user->errors();
+                    return \Response::api($this->res);
+                } else{
+                    $user->avatar = \Input::file('avatar');
+                    $user->save();
+
+                    $this->res['message'] = "Avatar has been updated";
+                    return \Response::api($this->res);
+                }
+
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        $imagePath = $user->avatar->path('small');
+        \Log::info($imagePath);
+        return \Response::file($imagePath);
     }
+
+    /**
+     * Update user's action
+     *
+     * @return Response
+     */
+    public function actions()
+    {
+        // return \API::user()->my_events()->get();
+        $actionId = \Input::get('action_id', '');
+        $actionValue = \Input::get('action_value', '');
+        $targetId = \Input::get('target_id', '');
+        $targetTypeId = \Input::get('target_type_id', '');
+
+        $result = \API::user()->attachAction($actionId, $actionValue, $targetId, $targetTypeId);
+
+        if($result){
+            $this->res['message'] = \Lang::get('flash_messages.user_action_success');
+        } else{
+            $this->res['errors'] = \API::user()->errors();
+        }
+
+        return \Response::api($this->res);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function update($user)
+    {
+        if($user->id != \API::user()->id){
+            \App::abort('404');
+        }
+
+        $user->fill(\Input::all());
+
+        if($user->save()){
+            $this->res['data'] = $user->toArray();
+        } else{
+            $this->res['errors'] = $user->errors();
+        }
+
+        return \Response::api($this->res);
+    }
+
+
 }

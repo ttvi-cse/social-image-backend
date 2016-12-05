@@ -14,6 +14,7 @@ use Comment;
 use Like;
 use Post;
 use Rate;
+use Vendor;
 
 class PostController extends APIController
 {
@@ -42,14 +43,35 @@ class PostController extends APIController
             $userId = $user->id;
             $posts = Post::where('created_by', $userId)->get();
         }
-
 //        $posts = $posts
+//            ->filter(\Input::all())
 //            ->sort()
 //            ->paginate(input_perpage());
 
         $this->res['data'] = $posts->toArray();
 
         return \Response::api($this->res);
+    }
+
+    public function all() {
+        $posts = new Post();
+
+        $posts = Post::all();
+
+        $this->res['data'] = $posts->toArray();
+
+        return \Response::api($this->res);
+    }
+
+    public function location($id) {
+        $posts = new Post();
+
+        $posts = Post::where('location', $id)->get();
+
+        $this->res['data'] = $posts->toArray();
+
+        return \Response::api($this->res);
+
     }
 
     /**
@@ -60,11 +82,9 @@ class PostController extends APIController
      */
     public function show($post)
     {
-        $post = Post::find($post);
+        $this->res['data'] = $post;
 
         $post->increaseViewCount();
-
-        $this->res['data'] = $post;
 
         return \Response::api($this->res);
     }
@@ -83,20 +103,86 @@ class PostController extends APIController
         $post->fill(\Input::except('file'));
         $post->image = \Input::file('file');
 
-        $destinationPath = public_path() . '/uploads/';
-        $filename =  \Input::file('file')->getClientOriginalName();
-        \Input::file('file')->move($destinationPath, $filename);
-
-        $post->image = $destinationPath . $filename;
-
-        $user = \Api::user();
-        $post->created_by = $user->id;
-        $post->updated_by = $user->id;
-
         if ($post->save()) {
             $this->res['data'] = $post->toArray();
         } else {
             $this->res['errors'] = $post->errors();
+        }
+
+        \Log::info($this->res);
+
+        return \Response::api($this->res);
+    }
+
+    /**
+     * Comments
+     *
+     * @return Response
+     */
+    public function comments($post)
+    {
+        $method = \Request::method();
+
+        switch ($method) {
+            case 'GET':
+                $this->res['data'] = $post->comments()
+                    ->default()
+                    ->sort()
+                    ->get()
+                    ->toArray();
+                break;
+            case 'POST':
+                $comment = \API::user()->comment($post, \Input::get('content', ''), \Input::get('parent_id', NULL));
+                if($comment->errors()->isEmpty()){
+                    $this->res['data'] = $comment->toArray();
+                } else{
+                    $this->res['errors'] = $comment->errors();
+                }
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        return \Response::api($this->res);
+    }
+
+
+    public function vendors() {
+        $method = \Request::method();
+
+        switch ($method) {
+            case 'GET':
+                $vendors = new Vendor();
+
+                $vendors = Vendor::all();
+
+                $this->res['data'] = $vendors->toArray();
+
+                break;
+            case 'POST':
+                $vendor = new Vendor();
+
+                $rules = Vendor::$rules;
+
+                $validator = \Validator::make(\Input::all(), $rules);
+
+                if ($validator->fails()) {
+                    $this->res['errors'] = $vendor->errors();
+                }
+
+                $vendor->fill(\Input::all());
+
+                if ($vendor->save()) {
+                    $this->res['data'] = $vendor->toArray();
+                } else {
+                    $this->res['errors'] = $vendor->errors();
+                }
+
+                break;
+            default:
+                # code...
+                break;
         }
 
         return \Response::api($this->res);

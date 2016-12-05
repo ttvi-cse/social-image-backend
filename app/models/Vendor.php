@@ -3,18 +3,18 @@
 use Codesleeve\Stapler\ORM\EloquentTrait;
 use \Codesleeve\Stapler\ORM\StaplerableInterface ;
 
-class Comment extends Elegant implements StaplerableInterface
+class Vendor extends Elegant implements StaplerableInterface
 {
     use EloquentTrait;
 
-    protected $fillable = ['content'];
+    protected $fillable = ['title', 'lat', 'lng'];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['target_id', 'updated_at', 'deleted_at', 'created_by', 'updated_by', 'deleted_by'];
+    protected $hidden = ['updated_at', 'deleted_at', 'created_by', 'updated_by', 'deleted_by'];
 
     /**
      * Overwrite Constructor
@@ -34,7 +34,7 @@ class Comment extends Elegant implements StaplerableInterface
         static::bootStapler();
 
         // Register observer
-        self::observe(new CommentObserver);
+        self::observe(new VendorObserve);
     }
 
     /**
@@ -43,33 +43,19 @@ class Comment extends Elegant implements StaplerableInterface
      * @var array
      */
     public static $rules = array(
-        'content'                  => 'required',
+        'title'  => 'required'
     );
 
     /**
      * Accessors
      */
-    public function getTargetAttribute()
-    {
-        return $this->target()->first();
-    }
-    public function getTargetTypeIdAttribute()
-    {
-        return $this->target->type_id;
-    }
 
     /**
      * Relationships
      */
     public function post()
     {
-        return $this->belongsTo('Post','target_id', 'id');
-    }
-
-    public function target()
-    {
-        $model = self::$table_model_mapping[$this->target_type];
-        return $this->belongsTo($model, 'target_id', 'id');
+        return $this->hasMany('Post','location_by', 'id');
     }
 
     /**
@@ -83,15 +69,5 @@ class Comment extends Elegant implements StaplerableInterface
     /**
      * Override toArray
      */
-    public function toArray()
-    {
-        $this->load('created_by_user');
-
-        $data = parent::toArray();
-        if(!isset($data['parent_id'])){
-            $data['parent_id'] = $this->parent_id;
-        }
-        return $data;
-    }
 
 }

@@ -6,6 +6,8 @@ use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserTrait;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 
 class User extends Elegant implements UserInterface, RemindableInterface, StaplerableInterface {
 
@@ -109,8 +111,9 @@ class User extends Elegant implements UserInterface, RemindableInterface, Staple
      */
     public static function boot()
     {
-//        parent::boot();
-//        static::bootStapler();
+        parent::boot();
+        static::bootStapler();
+
         // Register observer
         self::observe(new UserObserver);
     }
@@ -121,5 +124,120 @@ class User extends Elegant implements UserInterface, RemindableInterface, Staple
 
     public function posts() {
         return $this->hasMany('Post', 'created_by', 'id');
+    }
+
+    public function comments() {
+        return $this->hasMany('Comment', 'created_by');
+    }
+
+    /**
+     * Others
+     */
+
+    // Comment on an object
+    public function comment($target, $content, $parentId = NULL) {
+        $comment = new Comment([
+            'content' => $content,
+        ]);
+        $comment->target_id = $target->id;
+//        $comment->target_type = $target->getTable();
+
+        if ($parentId) {
+            $comment->parent_id = $parentId;
+        }
+
+        $this->comments()->save($comment);
+
+        return $comment;
+    }
+
+    // share an article
+    public function like($post) {
+        $post = PostLike::firstOrNew([
+            'created_by' => $this->id,
+            'post_id' => $post->id,
+        ]);
+
+        if (isset($post->id)) {
+            $this->addError('post_liked', Lang::get('flash_messages.post_liked'));
+            return false;
+        }
+
+        if (!$post->save()) {
+            $this->validationErrors = $post->errors();
+            return false;
+        }
+
+        return true;
+    }
+
+    // rate an article
+    public function rate($post, $grade) {
+        $rate = PostRate::firstOrNew([
+            'created_by' => $this->id,
+            'post_id' => $post->id,
+        ]);
+
+        if (isset($rate->id)) {
+            $this->addError('post_rated', Lang::get('flash_messages.post_rated'));
+            return false;
+        }
+
+        $rate->grade = $grade;
+
+        if (!$rate->save()) {
+            $this->validationErrors = $rate->errors();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Attach an user action
+    public function attachAction($actionId, $actionValue, $targetId, $targetTypeId) {
+
+        \Log::info('action_id' . $actionId);
+        $modelName = UserAction::$target_type[$targetTypeId];
+        $actionName = UserAction::$actions[$actionId];
+
+        if (!in_array($targetTypeId, UserAction::$action_target_mapping[$actionId])) {
+            if ($modelName == 'MyEvent') {
+                $modelName = 'Event';
+            }
+            $this->addError('user_action_unsupported', Lang::get('flash_messages.user_action_unsupported', ['a' => $actionName, 'o' => $modelName]));
+            return false;
+        }
+
+        $target = $modelName::find($targetId);
+        if (!$target) {
+            App::abort(404);
+        }
+
+        switch ($actionId) {
+            case 1:
+                $result = $this->like($target);
+                break;
+            case 2:
+                $result = $this->rate($target, $actionValue);
+                break;
+
+            default:
+                $result = true;
+                break;
+        }
+
+        if (!$result) {
+            return false;
+        }
+
+        $action = UserAction::create([
+            'user_id' => $this->id,
+            'action_value' => $actionValue,
+            'action_id' => $actionId,
+            'target_id' => $targetId,
+            'target_type_id' => $targetTypeId,
+        ]);
+
+        return true;
     }
 }
