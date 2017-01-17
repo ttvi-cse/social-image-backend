@@ -10,7 +10,7 @@ class Post extends Elegant implements StaplerableInterface
     /**
      * Fillable
      */
-    protected $fillable = ['image', 'content', 'location'];
+    protected $fillable = ['image', 'title', 'content', 'location'];
 
     /**
      * Appends attributes
@@ -55,7 +55,6 @@ class Post extends Elegant implements StaplerableInterface
      */
     public function getThumbAttribute() {
         $basename = Config::get("app.url");
-        \Log::info($this->image->url());
         return $basename . $this->image->url('large');
     }
 
@@ -77,20 +76,10 @@ class Post extends Elegant implements StaplerableInterface
         return $this->rates()->where('created_by', $user->id)->count() > 0;
     }
 
-    public function getCreatedByNameAttribute() {
-        $user = User::find($this->created_by);
-        $name = '';
-        if ($user) {
-            $name = $user->full_name;
-        }
-        return $name;
+    public function getLocationsAttribute() {
+        return $this->locations()->withTrashed()->first();
     }
 
-//    public function getCreatedDateAttribute() {
-//        $date = date_create($this->created_at);
-//
-//        return date_format($date, 'Y-m-d');
-//    }
 
     /**
      * Mutators
@@ -112,12 +101,8 @@ class Post extends Elegant implements StaplerableInterface
         return $this->hasMany('Comment', 'target_id', 'id');
     }
 
-    public function vendors() {
-        return $this->belongsTo('Vendor');
-    }
-
-    public function users() {
-        return $this->belongsTo('User');
+    public function locations() {
+        return $this->belongsTo('Location', 'location');
     }
 
     /**
@@ -160,11 +145,10 @@ class Post extends Elegant implements StaplerableInterface
     public function toArray()
     {
         $this->load('created_by_user');
+        $this->load('locations');
 
         $data = parent::toArray();
-        if(!isset($data['parent_id'])){
-            $data['parent_id'] = $this->parent_id;
-        }
+
         return $data;
     }
 

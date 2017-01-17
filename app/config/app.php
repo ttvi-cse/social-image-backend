@@ -26,9 +26,10 @@ return array(
 	|
 	*/
 
-	'url' => 'http://192.168.1.105:8000',
+	'url' => 'http://192.168.1.126:8000',
 
 	/*
+	
 	|--------------------------------------------------------------------------
 	| Application Timezone
 	|--------------------------------------------------------------------------
@@ -36,8 +37,7 @@ return array(
 	| Here you may specify the default timezone for your application, which
 	| will be used by the PHP date and date-time functions. We have gone
 	| ahead and set this to a sensible default for you out of the box.
-	|
-	*/
+	|*/
 
 	'timezone' => 'UTC',
 

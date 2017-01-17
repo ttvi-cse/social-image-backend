@@ -55,7 +55,7 @@ class Location extends Elegant implements StaplerableInterface
      */
     public function post()
     {
-        return $this->hasMany('Post','location_by', 'id');
+        return $this->hasMany('Post','location', 'id');
     }
 
     /**

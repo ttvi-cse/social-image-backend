@@ -18,7 +18,6 @@ use Location;
 
 class PostController extends APIController
 {
-    const ROOT_DOMAIN = "http://192.168.1.105:8000/";
 
     public function __construct()
     {

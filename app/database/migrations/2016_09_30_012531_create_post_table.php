@@ -15,6 +15,7 @@ class CreatePostTable extends Migration
     {
         Schema::create('posts', function($table) {
             $table->increments('id');
+            $table->text('title');
             $table->text('content');
             $table->string('image_file_name')->nullable();
             $table->integer('image_file_size')->nullable();

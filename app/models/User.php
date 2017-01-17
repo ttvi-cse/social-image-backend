@@ -77,10 +77,10 @@ class User extends Elegant implements UserInterface, RemindableInterface, Staple
     public static $rules = [
         'username' => 'required|between:4,50|unique:users,username',
         'email' => 'email|unique:users,email',
-        'first_name' => 'required|string|max:50',
-        'last_name' => 'string|max:50',
-        'job_title' => 'string|max:255',
-        'gender' => 'integer|in:1,2',
+        // 'first_name' => 'required|string|max:50',
+        // 'last_name' => 'string|max:50',
+        // 'job_title' => 'string|max:255',
+        // 'gender' => 'integer|in:1,2',
         'password' => 'required|between:6,16|alpha_num|confirmed',
         'password_confirmation' => 'required',
     ];
@@ -151,7 +151,7 @@ class User extends Elegant implements UserInterface, RemindableInterface, Staple
         return $comment;
     }
 
-    // share an article
+    // like an article
     public function like($post) {
         $post = PostLike::firstOrNew([
             'created_by' => $this->id,
